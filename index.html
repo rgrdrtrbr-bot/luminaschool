@@ -1177,8 +1177,10 @@
                 </button>
             </div>
 
+            <div id="lu-progress" class="text-[11px] uppercase tracking-[0.18em] text-cyan-400/80"></div>
             <div id="lu-messages" class="space-y-3 max-h-[42vh] overflow-y-auto pr-1" aria-live="polite"></div>
             <div id="lu-options" class="grid gap-2"></div>
+            <div id="lu-summary" class="hidden rounded-2xl border border-cyan-800/70 bg-cyan-950/40 p-4"></div>
             <p class="text-[11px] leading-relaxed text-slate-500 border-t border-slate-800 pt-3">
                 A Lu funciona como uma demonstração guiada: não envia mensagens nem salva dados automaticamente. O contato só acontece se você escolher abrir o WhatsApp.
             </p>
@@ -1275,17 +1277,52 @@
             window.open(`https://wa.me/5541999999999?text=${message}`, '_blank');
         }
 
-        // Lu: deterministic, guided conversation for the website-services project.
-        // This prototype has no backend, persistence, tracking, or automatic messaging.
+        // Lu: guided project diagnosis. No backend, persistence, tracking, or automatic messaging.
         const luWhatsAppUrl = 'https://wa.me/5541999999999?text=Ol%C3%A1!%20Conversei%20com%20a%20Lu%20no%20site%20luminaschool.online%20e%20gostaria%20de%20um%20or%C3%A7amento.';
         let luConversation = [];
+        let luDiagnostic = {};
 
-        const luSiteTypes = [
-            { value: 'institutional', label: 'Site institucional', description: 'Para apresentar empresa, serviços, equipe e canais de contato.' },
-            { value: 'landing', label: 'Landing page', description: 'Uma página objetiva para campanhas, captação e vendas.' },
-            { value: 'portfolio', label: 'Portfólio profissional', description: 'Uma vitrine elegante para projetos, trabalhos e resultados.' },
-            { value: 'store', label: 'Loja virtual', description: 'Uma estrutura para vender produtos com mais organização.' },
-            { value: 'custom', label: 'Sistema personalizado', description: 'Uma solução sob medida, com acessos, dados e fluxos próprios.' }
+        const luSteps = [
+            { key: 'goal', title: 'objetivo', question: 'O que você quer resolver com o site?', options: [
+                { value: 'new', label: 'Criar um site novo' },
+                { value: 'redesign', label: 'Melhorar um site existente' },
+                { value: 'research', label: 'Estou pesquisando possibilidades' }
+            ] },
+            { key: 'result', title: 'resultado', question: 'Qual resultado seria mais importante para você?', options: [
+                { value: 'sales', label: 'Vender e captar clientes' },
+                { value: 'authority', label: 'Apresentar minha empresa' },
+                { value: 'portfolio', label: 'Exibir meu trabalho' },
+                { value: 'system', label: 'Ter uma área ou sistema próprio' }
+            ] },
+            { key: 'audience', title: 'contexto', question: 'Qual cenário combina mais com o seu projeto?', options: [
+                { value: 'company', label: 'Empresa ou serviço' },
+                { value: 'professional', label: 'Profissional liberal' },
+                { value: 'products', label: 'Loja ou venda de produtos' },
+                { value: 'personal', label: 'Projeto pessoal ou educacional' }
+            ] },
+            { key: 'presence', title: 'presença atual', question: 'Como está sua presença digital hoje?', options: [
+                { value: 'none', label: 'Ainda não tenho site' },
+                { value: 'outdated', label: 'Tenho site, mas está desatualizado' },
+                { value: 'weak', label: 'Tenho site, mas ele não gera resultados' },
+                { value: 'good', label: 'Já tenho uma base e quero evoluir' }
+            ] },
+            { key: 'priority', title: 'prioridade', question: 'O que deve receber mais atenção na primeira versão?', options: [
+                { value: 'speed', label: 'Velocidade e presença profissional' },
+                { value: 'conversion', label: 'Vendas e conversão' },
+                { value: 'portfolio_focus', label: 'Autoridade e portfólio' },
+                { value: 'integration', label: 'Integrações e área restrita' }
+            ] },
+            { key: 'timeline', title: 'prazo', question: 'Em que momento você pretende colocar o projeto no ar?', options: [
+                { value: 'urgent', label: 'O quanto antes' },
+                { value: 'soon', label: 'Nas próximas semanas' },
+                { value: 'planning', label: 'Ainda estou planejando' }
+            ] },
+            { key: 'budget', title: 'investimento', question: 'Qual faixa faz sentido para começar?', options: [
+                { value: 'entry', label: 'Quero começar de forma econômica' },
+                { value: 'mid', label: 'Busco um projeto intermediário' },
+                { value: 'custom', label: 'Preciso de algo sob medida' },
+                { value: 'unknown', label: 'Ainda não sei; quero orientação' }
+            ] }
         ];
 
         function openLuAssistant() {
@@ -1309,7 +1346,6 @@
             const messages = document.getElementById('lu-messages');
             if (!messages) return;
             messages.innerHTML = '';
-
             luConversation.forEach(message => {
                 const bubble = document.createElement('div');
                 bubble.className = message.from === 'visitor'
@@ -1318,7 +1354,6 @@
                 bubble.textContent = message.text;
                 messages.appendChild(bubble);
             });
-
             messages.scrollTop = messages.scrollHeight;
         }
 
@@ -1326,84 +1361,103 @@
             const container = document.getElementById('lu-options');
             if (!container) return;
             container.innerHTML = '';
-
             options.forEach(option => {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'lu-option w-full text-left rounded-xl border border-slate-700 bg-slate-950/50 hover:bg-cyan-950/60 hover:border-cyan-500/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 px-4 py-3';
-
                 const title = document.createElement('span');
                 title.className = 'block text-sm font-semibold text-white';
                 title.textContent = option.label;
                 button.appendChild(title);
-
                 if (option.description) {
                     const description = document.createElement('span');
                     description.className = 'block text-xs text-slate-400 mt-1';
                     description.textContent = option.description;
                     button.appendChild(description);
                 }
-
                 button.addEventListener('click', () => chooseLu(option.value, option.label));
                 container.appendChild(button);
             });
         }
 
+        function updateLuProgress(stepIndex) {
+            const progress = document.getElementById('lu-progress');
+            if (!progress) return;
+            progress.textContent = stepIndex === null ? 'Diagnóstico Lumina' : `Etapa ${stepIndex + 1} de ${luSteps.length}`;
+        }
+
+        function renderLuStep(stepIndex) {
+            const step = luSteps[stepIndex];
+            updateLuProgress(stepIndex);
+            luConversation.push({ from: 'lu', text: step.question });
+            renderLuMessages();
+            renderLuOptions(step.options);
+        }
+
         function renderLuStart() {
-            luConversation = [{
-                from: 'lu',
-                text: 'Olá! Eu sou a Lu, assistente da LuminaSchool.online. Posso ajudar você a encontrar o melhor caminho para criar ou melhorar um site.'
-            }, {
-                from: 'lu',
-                text: 'Qual é o seu objetivo neste momento?'
-            }];
+            luDiagnostic = {};
+            luConversation = [
+                { from: 'lu', text: 'Olá! Eu sou a Lu. Em poucos passos, vou entender seu projeto e indicar um caminho inicial — sem substituir uma conversa com nosso desenvolvedor.' },
+                { from: 'lu', text: 'Vamos começar pelo seu objetivo principal.' }
+            ];
+            updateLuProgress(0);
             renderLuMessages();
-            renderLuOptions([
-                { value: 'new', label: 'Criar um site novo' },
-                { value: 'redesign', label: 'Reformular um site existente' },
-                { value: 'types', label: 'Conhecer os tipos de sites' },
-                { value: 'quote', label: 'Pedir um orçamento' }
-            ]);
+            renderLuOptions(luSteps[0].options);
+            document.getElementById('lu-summary')?.classList.add('hidden');
         }
 
-        function renderLuTypes() {
-            luConversation.push({ from: 'lu', text: 'Claro! Escolha o formato que mais se aproxima do seu projeto. Depois, você poderá simular o valor ou falar com um desenvolvedor.' });
-            renderLuMessages();
-            renderLuOptions(luSiteTypes);
+        function recommendLuProject() {
+            const { goal, result, audience, presence, priority, timeline, budget } = luDiagnostic;
+            let recommendation = {
+                name: 'Site institucional',
+                reason: 'uma base profissional para apresentar sua marca, serviços e canais de contato',
+                anchor: '#servicos'
+            };
+
+            if (result === 'sales' || priority === 'conversion') {
+                recommendation = { name: 'Landing page de conversão', reason: 'uma página objetiva para transformar visitas em contatos e oportunidades', anchor: '#servicos' };
+            } else if (result === 'portfolio' || priority === 'portfolio_focus') {
+                recommendation = { name: 'Portfólio profissional', reason: 'uma vitrine clara para destacar trabalhos, experiência e resultados', anchor: '#servicos' };
+            } else if (result === 'system' || priority === 'integration') {
+                recommendation = { name: 'Sistema personalizado', reason: 'uma estrutura sob medida para acessos, dados, integrações e fluxos próprios', anchor: '#servicos' };
+            } else if (audience === 'products') {
+                recommendation = { name: 'Loja virtual', reason: 'uma base organizada para apresentar produtos e preparar a operação de vendas', anchor: '#servicos' };
+            } else if (goal === 'redesign' || presence === 'outdated' || presence === 'weak') {
+                recommendation = { name: 'Redesign estratégico', reason: 'uma atualização visual e estrutural para melhorar clareza, velocidade e conversão', anchor: '#servicos' };
+            }
+
+            const urgency = timeline === 'urgent' ? 'prioridade de entrada rápida' : timeline === 'planning' ? 'planejamento gradual' : 'execução nas próximas semanas';
+            const investment = budget === 'entry' ? 'começo econômico' : budget === 'custom' ? 'escopo sob medida' : budget === 'unknown' ? 'faixa a definir em conversa' : 'projeto intermediário';
+            return { ...recommendation, urgency, investment };
         }
 
-        function renderLuNextSteps() {
+        function renderLuSummary() {
+            const summary = document.getElementById('lu-summary');
+            if (!summary) return;
+            const recommendation = recommendLuProject();
+            summary.innerHTML = `
+                <p class="text-[11px] uppercase tracking-[0.18em] text-cyan-300">Recomendação inicial da Lu</p>
+                <h3 class="text-lg font-bold text-white mt-2">${recommendation.name}</h3>
+                <p class="text-sm text-slate-300 mt-2">${recommendation.reason}.</p>
+                <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
+                    <div class="rounded-lg bg-slate-900/70 border border-slate-800 p-2"><span class="block text-slate-500">Ritmo</span><strong class="text-cyan-200">${recommendation.urgency}</strong></div>
+                    <div class="rounded-lg bg-slate-900/70 border border-slate-800 p-2"><span class="block text-slate-500">Investimento</span><strong class="text-cyan-200">${recommendation.investment}</strong></div>
+                </div>
+            `;
+            summary.classList.remove('hidden');
+            document.getElementById('lu-progress').textContent = 'Diagnóstico concluído';
+        }
+
+        function renderLuFinalOptions() {
             renderLuOptions([
-                { value: 'simulator', label: 'Abrir o simulador de valores', description: 'Faça uma estimativa inicial do projeto.' },
-                { value: 'whatsapp', label: 'Falar com um desenvolvedor', description: 'Abrir o WhatsApp somente quando você escolher.' },
-                { value: 'restart', label: 'Voltar ao início da conversa' }
+                { value: 'simulator', label: 'Abrir o simulador de valores', description: 'Compare a recomendação com uma estimativa inicial.' },
+                { value: 'whatsapp', label: 'Enviar briefing ao desenvolvedor', description: 'Abrir o WhatsApp somente quando você escolher.' },
+                { value: 'restart', label: 'Refazer o diagnóstico' }
             ]);
         }
 
         function chooseLu(value, label) {
             luConversation.push({ from: 'visitor', text: label });
-
-            if (value === 'types') {
-                renderLuTypes();
-                return;
-            }
-
-            if (value === 'new' || value === 'redesign') {
-                luConversation.push({ from: 'lu', text: value === 'new'
-                    ? 'Ótimo. Vamos encontrar um formato adequado para começar o seu projeto.'
-                    : 'Perfeito. Uma revisão bem planejada pode melhorar clareza, velocidade e conversão sem perder a identidade do site.'
-                });
-                renderLuMessages();
-                renderLuOptions(luSiteTypes);
-                return;
-            }
-
-            if (value === 'quote') {
-                luConversation.push({ from: 'lu', text: 'Você pode começar pelo simulador para ter uma referência ou falar diretamente com um desenvolvedor para explicar o seu cenário.' });
-                renderLuMessages();
-                renderLuNextSteps();
-                return;
-            }
 
             if (value === 'simulator') {
                 closeLuAssistant();
@@ -1412,7 +1466,9 @@
             }
 
             if (value === 'whatsapp') {
-                window.open(luWhatsAppUrl, '_blank', 'noopener');
+                const recommendation = recommendLuProject();
+                const message = `${luWhatsAppUrl}%0A%0A*Recomenda%C3%A7%C3%A3o%20da%20Lu:*%20${encodeURIComponent(recommendation.name)}%0A*Motivo:*%20${encodeURIComponent(recommendation.reason)}%0A*Ritmo:*%20${encodeURIComponent(recommendation.urgency)}%0A*Investimento:*%20${encodeURIComponent(recommendation.investment)}`;
+                window.open(message, '_blank', 'noopener');
                 return;
             }
 
@@ -1421,12 +1477,20 @@
                 return;
             }
 
-            const selectedType = luSiteTypes.find(type => type.value === value);
-            if (selectedType) {
-                luConversation.push({ from: 'lu', text: `${selectedType.label}: ${selectedType.description} Posso ajudar você a dar o próximo passo.` });
-                renderLuMessages();
-                renderLuNextSteps();
+            const stepIndex = luSteps.findIndex(step => step.options.some(option => option.value === value));
+            if (stepIndex === -1) return;
+            luDiagnostic[luSteps[stepIndex].key] = value;
+
+            const nextStep = stepIndex + 1;
+            if (nextStep < luSteps.length) {
+                renderLuStep(nextStep);
+                return;
             }
+
+            luConversation.push({ from: 'lu', text: 'Pronto. Com base nas suas respostas, preparei uma recomendação inicial para você.' });
+            renderLuMessages();
+            renderLuSummary();
+            renderLuFinalOptions();
         }
 
         document.getElementById('lu-assistant')?.addEventListener('click', event => {
