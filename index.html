@@ -78,6 +78,16 @@
                 box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
             }
         }
+        .lu-avatar {
+            object-position: center top;
+        }
+        .lu-option {
+            transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+        }
+        .lu-option:hover,
+        .lu-option:focus-visible {
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-cyan-500 selection:text-white">
@@ -147,6 +157,11 @@
 
                 <!-- Header CTA Button -->
                 <div class="hidden sm:flex items-center gap-4">
+                    <button type="button" onclick="openLuAssistant()"
+                            class="inline-flex items-center gap-2 border border-cyan-500/40 hover:border-cyan-400 text-cyan-200 hover:text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-300 text-sm">
+                        <i class="fa-solid fa-comment-dots text-cyan-400"></i>
+                        <span>Conversar com a Lu</span>
+                    </button>
                     <a href="https://wa.me/5541999999999?text=Ol%C3%A1!%20Vim%20pelo%20site%20luminaschool.online%20e%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20meu%20site." 
                        target="_blank" 
                        class="inline-flex items-center gap-2 bg-brand-whatsapp hover:bg-brand-whatsappHover text-slate-950 font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 text-sm">
@@ -172,6 +187,11 @@
             <a href="#simulador" class="block text-slate-200 hover:text-cyan-400 py-2 font-medium">Simulador de Valores</a>
             <a href="#depoimentos" class="block text-slate-200 hover:text-cyan-400 py-2 font-medium">Depoimentos</a>
             <a href="#faq" class="block text-slate-200 hover:text-cyan-400 py-2 font-medium">Perguntas Frequentes</a>
+            <button type="button" onclick="openLuAssistant(); mobileMenu.classList.add('hidden');"
+                    class="w-full flex items-center justify-center gap-2 border border-cyan-500/40 text-cyan-200 font-bold px-4 py-3 rounded-xl text-center mt-4">
+                <i class="fa-solid fa-comment-dots text-cyan-400"></i>
+                <span>Conversar com a Lu</span>
+            </button>
             <a href="https://wa.me/5541999999999?text=Ol%C3%A1!%20Vim%20pelo%20site%20luminaschool.online%20e%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20meu%20site." 
                target="_blank" 
                class="flex items-center justify-center gap-2 bg-brand-whatsapp text-slate-950 font-bold px-4 py-3 rounded-xl text-center shadow-md mt-4">
@@ -218,6 +238,12 @@
                             <i class="fa-solid fa-calculator text-cyan-400"></i>
                             <span>Simular Valor do Site</span>
                         </a>
+
+                        <button type="button" onclick="openLuAssistant()"
+                           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-cyan-950/70 hover:bg-cyan-900/80 text-cyan-100 border border-cyan-500/40 font-semibold text-base px-7 py-4 rounded-xl transition-all duration-300 hover:border-cyan-300/70">
+                            <i class="fa-solid fa-comment-dots text-cyan-400"></i>
+                            <span>Conversar com a Lu</span>
+                        </button>
                     </div>
 
                     <!-- Trust indicators -->
@@ -1125,6 +1151,40 @@
         <i class="fa-brands fa-whatsapp"></i>
     </a>
 
+    <!-- Lu: guided assistant for website inquiries (front-end only) -->
+    <button type="button" onclick="openLuAssistant()" aria-label="Conversar com a Lu" title="Conversar com a Lu"
+            class="fixed bottom-6 right-24 z-50 w-14 h-14 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-full flex items-center justify-center shadow-2xl shadow-cyan-500/30 transition-all duration-300 hover:scale-105 border-2 border-cyan-200/70">
+        <img src="lumina.jpeg" alt="" class="lu-avatar w-10 h-10 rounded-full object-cover bg-white" loading="lazy">
+    </button>
+
+    <!-- Lu Assistant Modal -->
+    <div id="lu-assistant" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden items-end md:items-center justify-center p-0 md:p-4"
+         role="dialog" aria-modal="true" aria-labelledby="lu-title">
+        <div class="bg-slate-900 border border-cyan-900/70 rounded-t-3xl md:rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl shadow-cyan-950/50">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full overflow-hidden bg-white border border-cyan-400/50 shrink-0">
+                        <img src="lumina.jpeg" alt="Corujinha Lu" class="lu-avatar w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h2 id="lu-title" class="font-bold text-white">Lu · Assistente de sites</h2>
+                        <p class="text-xs text-cyan-300">Orientação inicial, sem compromisso</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLuAssistant()" aria-label="Fechar conversa com a Lu"
+                        class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div id="lu-messages" class="space-y-3 max-h-[42vh] overflow-y-auto pr-1" aria-live="polite"></div>
+            <div id="lu-options" class="grid gap-2"></div>
+            <p class="text-[11px] leading-relaxed text-slate-500 border-t border-slate-800 pt-3">
+                A Lu funciona como uma demonstração guiada: não envia mensagens nem salva dados automaticamente. O contato só acontece se você escolher abrir o WhatsApp.
+            </p>
+        </div>
+    </div>
+
     <!-- Service Detail Modal -->
     <div id="service-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 relative">
@@ -1214,6 +1274,168 @@
 
             window.open(`https://wa.me/5541999999999?text=${message}`, '_blank');
         }
+
+        // Lu: deterministic, guided conversation for the website-services project.
+        // This prototype has no backend, persistence, tracking, or automatic messaging.
+        const luWhatsAppUrl = 'https://wa.me/5541999999999?text=Ol%C3%A1!%20Conversei%20com%20a%20Lu%20no%20site%20luminaschool.online%20e%20gostaria%20de%20um%20or%C3%A7amento.';
+        let luConversation = [];
+
+        const luSiteTypes = [
+            { value: 'institutional', label: 'Site institucional', description: 'Para apresentar empresa, serviços, equipe e canais de contato.' },
+            { value: 'landing', label: 'Landing page', description: 'Uma página objetiva para campanhas, captação e vendas.' },
+            { value: 'portfolio', label: 'Portfólio profissional', description: 'Uma vitrine elegante para projetos, trabalhos e resultados.' },
+            { value: 'store', label: 'Loja virtual', description: 'Uma estrutura para vender produtos com mais organização.' },
+            { value: 'custom', label: 'Sistema personalizado', description: 'Uma solução sob medida, com acessos, dados e fluxos próprios.' }
+        ];
+
+        function openLuAssistant() {
+            const modal = document.getElementById('lu-assistant');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+            renderLuStart();
+        }
+
+        function closeLuAssistant() {
+            const modal = document.getElementById('lu-assistant');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function renderLuMessages() {
+            const messages = document.getElementById('lu-messages');
+            if (!messages) return;
+            messages.innerHTML = '';
+
+            luConversation.forEach(message => {
+                const bubble = document.createElement('div');
+                bubble.className = message.from === 'visitor'
+                    ? 'ml-8 rounded-2xl rounded-tr-sm bg-cyan-950/80 border border-cyan-800/70 px-4 py-3 text-sm text-cyan-50'
+                    : 'mr-8 rounded-2xl rounded-tl-sm bg-slate-800 border border-slate-700 px-4 py-3 text-sm text-slate-200';
+                bubble.textContent = message.text;
+                messages.appendChild(bubble);
+            });
+
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function renderLuOptions(options) {
+            const container = document.getElementById('lu-options');
+            if (!container) return;
+            container.innerHTML = '';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'lu-option w-full text-left rounded-xl border border-slate-700 bg-slate-950/50 hover:bg-cyan-950/60 hover:border-cyan-500/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/70 px-4 py-3';
+
+                const title = document.createElement('span');
+                title.className = 'block text-sm font-semibold text-white';
+                title.textContent = option.label;
+                button.appendChild(title);
+
+                if (option.description) {
+                    const description = document.createElement('span');
+                    description.className = 'block text-xs text-slate-400 mt-1';
+                    description.textContent = option.description;
+                    button.appendChild(description);
+                }
+
+                button.addEventListener('click', () => chooseLu(option.value, option.label));
+                container.appendChild(button);
+            });
+        }
+
+        function renderLuStart() {
+            luConversation = [{
+                from: 'lu',
+                text: 'Olá! Eu sou a Lu, assistente da LuminaSchool.online. Posso ajudar você a encontrar o melhor caminho para criar ou melhorar um site.'
+            }, {
+                from: 'lu',
+                text: 'Qual é o seu objetivo neste momento?'
+            }];
+            renderLuMessages();
+            renderLuOptions([
+                { value: 'new', label: 'Criar um site novo' },
+                { value: 'redesign', label: 'Reformular um site existente' },
+                { value: 'types', label: 'Conhecer os tipos de sites' },
+                { value: 'quote', label: 'Pedir um orçamento' }
+            ]);
+        }
+
+        function renderLuTypes() {
+            luConversation.push({ from: 'lu', text: 'Claro! Escolha o formato que mais se aproxima do seu projeto. Depois, você poderá simular o valor ou falar com um desenvolvedor.' });
+            renderLuMessages();
+            renderLuOptions(luSiteTypes);
+        }
+
+        function renderLuNextSteps() {
+            renderLuOptions([
+                { value: 'simulator', label: 'Abrir o simulador de valores', description: 'Faça uma estimativa inicial do projeto.' },
+                { value: 'whatsapp', label: 'Falar com um desenvolvedor', description: 'Abrir o WhatsApp somente quando você escolher.' },
+                { value: 'restart', label: 'Voltar ao início da conversa' }
+            ]);
+        }
+
+        function chooseLu(value, label) {
+            luConversation.push({ from: 'visitor', text: label });
+
+            if (value === 'types') {
+                renderLuTypes();
+                return;
+            }
+
+            if (value === 'new' || value === 'redesign') {
+                luConversation.push({ from: 'lu', text: value === 'new'
+                    ? 'Ótimo. Vamos encontrar um formato adequado para começar o seu projeto.'
+                    : 'Perfeito. Uma revisão bem planejada pode melhorar clareza, velocidade e conversão sem perder a identidade do site.'
+                });
+                renderLuMessages();
+                renderLuOptions(luSiteTypes);
+                return;
+            }
+
+            if (value === 'quote') {
+                luConversation.push({ from: 'lu', text: 'Você pode começar pelo simulador para ter uma referência ou falar diretamente com um desenvolvedor para explicar o seu cenário.' });
+                renderLuMessages();
+                renderLuNextSteps();
+                return;
+            }
+
+            if (value === 'simulator') {
+                closeLuAssistant();
+                document.getElementById('simulador')?.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            if (value === 'whatsapp') {
+                window.open(luWhatsAppUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (value === 'restart') {
+                renderLuStart();
+                return;
+            }
+
+            const selectedType = luSiteTypes.find(type => type.value === value);
+            if (selectedType) {
+                luConversation.push({ from: 'lu', text: `${selectedType.label}: ${selectedType.description} Posso ajudar você a dar o próximo passo.` });
+                renderLuMessages();
+                renderLuNextSteps();
+            }
+        }
+
+        document.getElementById('lu-assistant')?.addEventListener('click', event => {
+            if (event.target.id === 'lu-assistant') closeLuAssistant();
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeLuAssistant();
+        });
 
         // Modal Handler
         function openServiceModal(type) {
